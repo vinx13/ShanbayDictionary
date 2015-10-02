@@ -2,7 +2,6 @@ package vincentlin.shanbaydictionary;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Message;
@@ -19,7 +18,6 @@ import android.widget.EditText;
 import android.os.Handler;
 import android.widget.TextView;
 
-import java.net.NetworkInterface;
 
 public class MainActivity extends AppCompatActivity {
     private Thread mThreadSearch=null;
@@ -30,8 +28,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initListeners();
         initHandler();
+        if(savedInstanceState!=null){
+            ((EditText)findViewById(R.id.etSearch)).setText(
+                    savedInstanceState.getString("searchText") );
+            ((TextView)findViewById(R.id.tvResult)).setText(
+                    savedInstanceState.getString("resultText") );
+        }
     }
-
+    @Override
+    protected void onSaveInstanceState(Bundle state){
+        state.putString("searchText",
+                ((EditText)findViewById(R.id.etSearch)).getText().toString() );
+        state.putString("resultText",
+                ((TextView)findViewById(R.id.tvResult)).getText().toString() );
+    }
     private void initHandler() {
         mHandler=new Handler(){
             public void handleMessage(Message msg)
@@ -137,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         if(ni!=null&&ni.isAvailable())
             bConnected=true;
         return bConnected;
+
 
     }
 }
