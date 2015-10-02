@@ -70,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
         etSearch.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (    event != null &&
-                        event.getAction()==KeyEvent.ACTION_DOWN&&
-                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER    ) {
+                if (event != null &&
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     //EditText _etSearch=(EditText)findViewById((R.id.etSearch));
                     hideKeyboard();
                     if (isNetworkAvailable()) {
@@ -86,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return true;
                 }
-            return false;
-        }
-    });
+                return false;
+            }
+        });
 
         //EditText-OnTextChanged
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -108,6 +108,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.main_layout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideKeyboard();
+            }
+        });
 
 
 
