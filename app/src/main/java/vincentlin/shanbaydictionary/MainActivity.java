@@ -1,6 +1,10 @@
 package vincentlin.shanbaydictionary;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +19,8 @@ import android.widget.EditText;
 import android.os.Handler;
 import android.widget.TextView;
 
+import java.net.NetworkInterface;
+
 public class MainActivity extends AppCompatActivity {
     private Thread mThreadSearch=null;
     private Handler mHandler=null;
@@ -24,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initListeners();
         initHandler();
-
-
     }
 
     private void initHandler() {
@@ -37,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
                         ((TextView)findViewById(R.id.tvResult)).setText((String)msg.obj);
                         break;
                     case 1:
-                        ((TextView)findViewById(R.id.tvResult)).setText(msg.obj.toString());
+                        //((TextView)findViewById(R.id.tvResult)).setText(msg.obj.toString());
+                        alert("Error",msg.obj.toString());
                 }
                 super.handleMessage(msg);
             }
@@ -55,24 +60,25 @@ public class MainActivity extends AppCompatActivity {
         etSearch.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event!=null&&event.getKeyCode()==KeyEvent.KEYCODE_ENTER ) {
+                if (    event != null &&
+                        event.getAction()==KeyEvent.ACTION_DOWN&&
+                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER    ) {
                     //EditText _etSearch=(EditText)findViewById((R.id.etSearch));
                     hideKeyboard();
-                    //etSearch.clearFocus();
-                    //((TextView)findViewById(R.id.tvResult)).setText("clicked");
-                    String word =etSearch.getText().toString();
-                    mThreadSearch=new DictionarySearch(mHandler,word);
-                    mThreadSearch.start();
-
-
-
-
-
+                    if (isNetworkAvailable()) {
+                        //etSearch.clearFocus();
+                        //((TextView)findViewById(R.id.tvResult)).setText("clicked");
+                        String word = etSearch.getText().toString();
+                        mThreadSearch = new DictionarySearch(mHandler, word);
+                        mThreadSearch.start();
+                    } else {
+                        alert("Error", "Can't access internet.");
+                    }
                     return true;
                 }
-                return false;
-            }
-        });
+            return false;
+        }
+    });
 
         //EditText-OnTextChanged
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -83,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                ((TextView)findViewById(R.id.tvResult)).setText("");
+                ((TextView) findViewById(R.id.tvResult)).setText("");
             }
 
             @Override
@@ -117,5 +123,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    private void alert(String title,String msg)
+    {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle(title).setMessage(msg).setPositiveButton("OK", null).show();
+    }
+    private Boolean isNetworkAvailable()
+    {
+        Boolean bConnected=false;
+        ConnectivityManager cm=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni=cm.getActiveNetworkInfo();
+        if(ni!=null&&ni.isAvailable())
+            bConnected=true;
+        return bConnected;
+
     }
 }
